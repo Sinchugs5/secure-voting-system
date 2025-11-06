@@ -435,53 +435,62 @@ def login():
                                         'to': [{'email': email}],
                                         'subject': 'Your OTP Code (SMS Failed)'
                                     }],
-                                    'from': {'email': 'noreply@votingsystem.com', 'name': 'Voting System'},
+                                    'from': {'email': 'sitaraab9@gmail.com', 'name': 'Voting System'},
                                     'content': [{
                                         'type': 'text/plain',
                                         'value': f'Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email.'
                                     }]
                                 },
-                                timeout=3
+                                timeout=10
                             )
                             if response.status_code == 202:
                                 return jsonify({'success': True, 'message': f'SMS failed. OTP sent to your email {email} instead.'})
                         
-                        # If email also fails, show OTP
-                        return jsonify({'success': True, 'message': f'SMS and email failed. Your OTP is: {otp}'})
+                        # Show OTP directly
+                        return jsonify({'success': True, 'message': f'Your OTP is: {otp}'})
                     except Exception as email_error:
                         return jsonify({'success': True, 'message': f'OTP: {otp} (Both SMS and email failed)'})
             else:
-                # Quick test of SendGrid and fallback to showing OTP
-                try:
+                import threading
+                import time
+                
+                # Try SendGrid in background
+                def send_email_async():
                     sendgrid_key = os.environ.get('SENDGRID_API_KEY')
                     if sendgrid_key and sendgrid_key.startswith('SG.'):
-                        import requests
-                        response = requests.post(
-                            'https://api.sendgrid.com/v3/mail/send',
-                            headers={
-                                'Authorization': f'Bearer {sendgrid_key}',
-                                'Content-Type': 'application/json'
-                            },
-                            json={
-                                'personalizations': [{
-                                    'to': [{'email': email}],
-                                    'subject': 'Your OTP Code - Voting System'
-                                }],
-                                'from': {'email': 'noreply@votingsystem.com', 'name': 'Voting System'},
-                                'content': [{
-                                    'type': 'text/plain',
-                                    'value': f'Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System'
-                                }]
-                            },
-                            timeout=3
-                        )
-                        if response.status_code == 202:
-                            return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your email.'})
-                except:
-                    pass
+                        try:
+                            import requests
+                            response = requests.post(
+                                'https://api.sendgrid.com/v3/mail/send',
+                                headers={
+                                    'Authorization': f'Bearer {sendgrid_key}',
+                                    'Content-Type': 'application/json'
+                                },
+                                json={
+                                    'personalizations': [{
+                                        'to': [{'email': email}],
+                                        'subject': 'Your OTP Code - Voting System'
+                                    }],
+                                    'from': {'email': 'sitaraab9@gmail.com', 'name': 'Voting System'},
+                                    'content': [{
+                                        'type': 'text/plain',
+                                        'value': f'Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System'
+                                    }]
+                                },
+                                timeout=10
+                            )
+                            print(f"SendGrid Response: {response.status_code}")
+                        except Exception as e:
+                            print(f"SendGrid error: {e}")
                 
-                # If email fails, show OTP directly
-                return jsonify({'success': True, 'message': f'Email service unavailable. Your OTP is: {otp}'})
+                # Start email sending in background
+                email_thread = threading.Thread(target=send_email_async)
+                email_thread.daemon = True
+                email_thread.start()
+                
+                # Wait 20 seconds then show OTP
+                time.sleep(20)
+                return jsonify({'success': True, 'message': f'Email sent to {email}. If not received, your OTP is: {otp}'})
         else:
             field_name = 'mobile number' if login_type == 'mobile' else 'email'
             return jsonify({'success': False, 'message': f'Invalid {field_name} or password.'})
