@@ -1,14 +1,13 @@
-<!DOCTYPE html>
+.<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Election Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/static/js/lang-simple.js"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #1e3c72, #2a5298, #4169e1, #6495ed, #1e90ff, #0066cc);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     .glass {
@@ -36,14 +35,6 @@
   <div class="flex">
     <!-- Sidebar -->
     <div class="w-64 min-h-screen glass m-4 p-6">
-      <!-- Language Selector -->
-      <div class="mb-4">
-        <select onchange="changeLanguage(this.value)" class="w-full px-3 py-2 rounded bg-gray-300 text-black border border-gray-400">
-          <option value="en">English</option>
-          <option value="kn">ಕನ್ನಡ</option>
-          <option value="hi">हिंदी</option>
-        </select>
-      </div>
       <div class="text-center mb-8">
         <h1 class="text-2xl font-bold text-gray-800">🗳️ Admin Panel</h1>
       </div>
@@ -121,43 +112,20 @@
 
         case 'candidates':
           content.innerHTML = `
-            <div class="flex justify-between items-center mb-6">
-              <h2 class="text-3xl font-bold">👤 Add Candidate</h2>
-              <button onclick="viewCandidates()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition">
-                👥 View Candidates
-              </button>
-            </div>
+            <h2 class="text-3xl font-bold mb-6">👤 Add Candidate</h2>
             <form id="candidateForm" class="space-y-4 max-w-2xl">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block mb-2 font-semibold">Candidate Name</label>
-                  <input type="text" name="name" placeholder="Candidate Name" required class="p-3 border rounded-lg">
-                </div>
-                <div>
-                  <label class="block mb-2 font-semibold">Party Name</label>
-                  <input type="text" name="partyName" placeholder="Party Name" required class="p-3 border rounded-lg">
-                </div>
-                <div>
-                  <label class="block mb-2 font-semibold">Age</label>
-                  <input type="number" name="age" placeholder="Age" min="18" required class="p-3 border rounded-lg">
-                </div>
-                <div>
-                  <label class="block mb-2 font-semibold">Gender</label>
-                  <select name="gender" required class="p-3 border rounded-lg bg-gray-300 text-black">
-                    <option value="" data-translate="select_gender">Select Gender</option>
-                    <option value="Male" data-translate="male">Male</option>
-                    <option value="Female" data-translate="female">Female</option>
-                    <option value="Other" data-translate="other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block mb-2 font-semibold">Email</label>
-                  <input type="email" name="email" placeholder="Email" required class="p-3 border rounded-lg">
-                </div>
-                <div>
-                  <label class="block mb-2 font-semibold">Phone Number</label>
-                  <input type="tel" name="phoneNumber" placeholder="Phone Number" required class="p-3 border rounded-lg">
-                </div>
+                <input type="text" name="name" placeholder="Candidate Name" required class="p-3 border rounded-lg">
+                <input type="text" name="partyName" placeholder="Party Name" required class="p-3 border rounded-lg">
+                <input type="number" name="age" placeholder="Age" min="18" required class="p-3 border rounded-lg">
+                <select name="gender" required class="p-3 border rounded-lg">
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input type="email" name="email" placeholder="Email" required class="p-3 border rounded-lg">
+                <input type="tel" name="phoneNumber" placeholder="Phone Number" required class="p-3 border rounded-lg">
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -169,10 +137,7 @@
                   <input type="file" name="symbol" accept="image/*" class="p-3 border rounded-lg w-full">
                 </div>
               </div>
-              <div>
-                <label class="block mb-2 font-semibold">Description</label>
-                <textarea name="description" placeholder="Description" rows="3" required class="w-full p-3 border rounded-lg"></textarea>
-              </div>
+              <textarea name="description" placeholder="Description" rows="3" required class="w-full p-3 border rounded-lg"></textarea>
               <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
                 ✨ Add Candidate
               </button>
@@ -239,17 +204,11 @@
           content.innerHTML = `
             <h2 class="text-3xl font-bold mb-6">⚙️ Settings</h2>
             <div class="space-y-4">
-              <button onclick="fixBlockchain()" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
-                🔧 Fix Blockchain Integrity
-              </button>
               <button onclick="resetElection()" class="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition">
                 🔄 Reset Election
               </button>
               <button onclick="deleteElection()" class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition">
                 🗑️ Delete All Data
-              </button>
-              <button onclick="testNetworkCapture()" class="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition">
-                🌐 Test Network Info
               </button>
             </div>
           `;
@@ -460,21 +419,6 @@
       }
     }
 
-    async function fixBlockchain() {
-      if (confirm('This will rebuild the blockchain from database votes. Continue?')) {
-        try {
-          const response = await fetch('/fix-blockchain', { method: 'POST' });
-          const result = await response.json();
-          alert(result.message);
-          if (result.success) {
-            showSection('stats');
-          }
-        } catch (error) {
-          alert('Error fixing blockchain');
-        }
-      }
-    }
-
     async function loadProctoring() {
       try {
         const response = await fetch('/get-proctoring-data');
@@ -492,8 +436,6 @@
                 <tr>
                   <th class="p-4 text-left font-semibold">Username</th>
                   <th class="p-4 text-left font-semibold">Session Time</th>
-                  <th class="p-4 text-left font-semibold">IP Address</th>
-                  <th class="p-4 text-left font-semibold">MAC Address</th>
                   <th class="p-4 text-left font-semibold">Violations</th>
                   <th class="p-4 text-left font-semibold">Tab Switches</th>
                   <th class="p-4 text-left font-semibold">Status</th>
@@ -510,16 +452,6 @@
                     <tr class="border-t hover:bg-gray-50">
                       <td class="p-4 font-semibold">${session.username}</td>
                       <td class="p-4">${new Date(session.session_start).toLocaleString()}</td>
-                      <td class="p-4">
-                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-mono">
-                          ${session.ip_address || 'Unknown'}
-                        </span>
-                      </td>
-                      <td class="p-4">
-                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-mono">
-                          ${session.mac_address || 'Unknown'}
-                        </span>
-                      </td>
                       <td class="p-4">
                         <span class="px-3 py-1 rounded-full text-sm ${bgColor} ${statusColor}">
                           ${session.total_violations} violations
@@ -566,66 +498,6 @@
         alert(result.message);
       } catch (error) {
         alert('Error saving results');
-      }
-    }
-
-    async function testNetworkCapture() {
-      try {
-        if (!window.getNetworkInfo) {
-          const script = document.createElement('script');
-          script.src = '/static/js/network-info.js';
-          document.head.appendChild(script);
-          await new Promise(resolve => script.onload = resolve);
-        }
-        
-        const networkInfo = await window.getNetworkInfo();
-        alert(`Network Info Captured:\nIP: ${networkInfo.ip_address}\nMAC: ${networkInfo.mac_address}`);
-      } catch (error) {
-        alert('Error testing network capture: ' + error.message);
-      }
-    }
-
-    async function viewCandidates() {
-      try {
-        const response = await fetch('/get-candidates');
-        const candidates = await response.json();
-        
-        const candidatesHtml = `
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-3xl font-bold">👥 All Candidates</h2>
-            <button onclick="showSection('candidates')" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
-              ← Back to Add Candidate
-            </button>
-          </div>
-          
-          ${candidates.length === 0 ? 
-            '<div class="text-center py-8 text-gray-500">No candidates added yet</div>' :
-            `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              ${candidates.map(candidate => `
-                <div class="bg-white rounded-lg shadow-lg p-6 border">
-                  <div class="text-center mb-4">
-                    <img src="/${candidate.photo}" alt="${candidate.name}" class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-blue-200">
-                  </div>
-                  <h3 class="text-xl font-bold text-center mb-2">${candidate.name}</h3>
-                  <div class="space-y-2 text-sm">
-                    <p><strong>Party:</strong> ${candidate.party_name || 'Independent'}</p>
-                    <p><strong>Age:</strong> ${candidate.age}</p>
-                    <p><strong>Gender:</strong> ${candidate.gender}</p>
-                    <p><strong>Email:</strong> ${candidate.email}</p>
-                    <p><strong>Phone:</strong> ${candidate.phone_number}</p>
-                    ${candidate.symbol ? `<div class="text-center mt-3"><img src="/${candidate.symbol}" alt="Party Symbol" class="w-12 h-12 mx-auto rounded border"></div>` : ''}
-                    <p class="mt-3"><strong>Description:</strong></p>
-                    <p class="text-gray-600 text-xs">${candidate.description}</p>
-                  </div>
-                </div>
-              `).join('')}
-            </div>`
-          }
-        `;
-        
-        document.getElementById('content').innerHTML = candidatesHtml;
-      } catch (error) {
-        alert('Error loading candidates');
       }
     }
 

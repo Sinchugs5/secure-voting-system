@@ -27,8 +27,8 @@ __pycache__/
 Thumbs.db
 
 # Uploads
-static/uploads/*
-!static/uploads/.gitkeep
+#static/uploads/*
+#!static/uploads/.gitkeep
 
 # Session files
 flask_session/
