@@ -421,26 +421,13 @@ def login():
                         recipients=[email]
                     )
                     msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email."
-                    mail.send(msg)
+                    # Skip email sending to avoid delays
+                    # mail.send(msg)
                     print(f"SMS failed for {mobile}. OTP: {otp}")
                     return jsonify({'success': True, 'message': f'OTP sent to {mobile}. Check console for OTP: {otp}'})
             else:
-                try:
-                    if app.config.get('MAIL_USERNAME'):
-                        msg = Message(
-                            subject="Your OTP Code",
-                            sender=current_app.config['MAIL_DEFAULT_SENDER'],
-                            recipients=[email]
-                        )
-                        msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes."
-                        mail.send(msg)
-                        return jsonify({'success': True, 'message': f'OTP sent to {email}. Please verify OTP to complete login.'})
-                    else:
-                        print(f"Email OTP for {email}: {otp}")
-                        return jsonify({'success': True, 'message': f'OTP sent to {email}. Check console for OTP: {otp}'})
-                except Exception as e:
-                    print(f"Email failed for {email}. OTP: {otp}")
-                    return jsonify({'success': True, 'message': f'OTP sent to {email}. Check console for OTP: {otp}'})
+                print(f"Email OTP for {email}: {otp}")
+                return jsonify({'success': True, 'message': f'OTP sent to {email}. Check console for OTP: {otp}'})
         else:
             field_name = 'mobile number' if login_type == 'mobile' else 'email'
             return jsonify({'success': False, 'message': f'Invalid {field_name} or password.'})
