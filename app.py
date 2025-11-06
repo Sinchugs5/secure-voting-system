@@ -433,12 +433,24 @@ def login():
                                 json={
                                     'personalizations': [{
                                         'to': [{'email': email}],
-                                        'subject': 'Your OTP Code (SMS Failed)'
+                                        'subject': '🔐 Secure Login Code - Voting System'
                                     }],
                                     'from': {'email': 'sitaraab9@gmail.com', 'name': 'Voting System'},
                                     'content': [{
-                                        'type': 'text/plain',
-                                        'value': f'Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email.'
+                                        'type': 'text/html',
+                                        'value': f'''<html><body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                                        <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                                        <h2 style="color: #2c3e50; text-align: center;">🗳️ Voting System - Verification Code</h2>
+                                        <p>Dear {name},</p>
+                                        <p>Your verification code for secure login is:</p>
+                                        <div style="background: #f8f9fa; padding: 15px; text-align: center; border-radius: 5px; margin: 20px 0;">
+                                        <span style="font-size: 24px; font-weight: bold; color: #2c3e50; letter-spacing: 3px;">{otp}</span>
+                                        </div>
+                                        <p><strong>⏰ Valid for 5 minutes only</strong></p>
+                                        <p style="color: #e74c3c;">📱 Note: SMS delivery failed, verification sent via email instead.</p>
+                                        <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+                                        <p style="font-size: 12px; color: #666;">This is an automated message from the Voting System. Please do not reply.</p>
+                                        </div></body></html>'''
                                     }]
                                 },
                                 timeout=10
@@ -469,12 +481,24 @@ def login():
                                 json={
                                     'personalizations': [{
                                         'to': [{'email': email}],
-                                        'subject': 'Your OTP Code - Voting System'
+                                        'subject': '🔐 Secure Access Code - Voting System'
                                     }],
                                     'from': {'email': 'sitaraab9@gmail.com', 'name': 'Voting System'},
                                     'content': [{
-                                        'type': 'text/plain',
-                                        'value': f'Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System'
+                                        'type': 'text/html',
+                                        'value': f'''<html><body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                                        <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                                        <h2 style="color: #2c3e50; text-align: center;">🗳️ Voting System - Verification Code</h2>
+                                        <p>Dear {name},</p>
+                                        <p>Your secure verification code for voting system access is:</p>
+                                        <div style="background: #f8f9fa; padding: 15px; text-align: center; border-radius: 5px; margin: 20px 0;">
+                                        <span style="font-size: 24px; font-weight: bold; color: #2c3e50; letter-spacing: 3px;">{otp}</span>
+                                        </div>
+                                        <p><strong>⏰ This code expires in 5 minutes</strong></p>
+                                        <p>🔒 Keep this code confidential and do not share with anyone.</p>
+                                        <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+                                        <p style="font-size: 12px; color: #666;">This is an automated security message. Please do not reply to this email.</p>
+                                        </div></body></html>'''
                                     }]
                                 },
                                 timeout=10
@@ -488,8 +512,7 @@ def login():
                 email_thread.daemon = True
                 email_thread.start()
                 
-                # Wait 20 seconds then show OTP
-                time.sleep(5)
+                # Return immediately
                 return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your inbox and spam folder.'})
         else:
             field_name = 'mobile number' if login_type == 'mobile' else 'email'
