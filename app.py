@@ -412,65 +412,35 @@ def login():
                     send_sms_otp(mobile, otp, name)
                     return jsonify({'success': True, 'message': f'OTP sent to {mobile}. Please verify OTP to complete login.'})
                 except Exception as e:
-                    # Fallback to console for testing
-                    print(f"SMS failed, showing OTP in console: {otp}")
-                    # Fallback to email if SMS fails
-                    msg = Message(
-                        subject="Your OTP Code (SMS Failed)",
-                        sender=current_app.config['MAIL_DEFAULT_SENDER'],
-                        recipients=[email]
-                    )
-                    msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email."
                     try:
-                        import threading
+                        msg = Message(
+                            subject="Your OTP Code (SMS Failed)",
+                            sender=app.config['MAIL_DEFAULT_SENDER'],
+                            recipients=[email]
+                        )
+                        msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email."
                         
-                        def send_fallback_email():
-                            try:
-                                msg = Message(
-                                    subject="Your OTP Code (SMS Failed)",
-                                    sender=current_app.config['MAIL_DEFAULT_SENDER'],
-                                    recipients=[email]
-                                )
-                                msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email."
-                                mail.send(msg)
-                            except Exception as e:
-                                print(f"Email fallback also failed: {e}")
-                        
-                        # Send email in background
-                        email_thread = threading.Thread(target=send_fallback_email)
-                        email_thread.daemon = True
-                        email_thread.start()
-                        email_thread.join(timeout=3)
+                        with app.app_context():
+                            mail.send(msg)
                         
                         return jsonify({'success': True, 'message': f'SMS failed. OTP sent to your email {email} instead.'})
-                    except Exception:
-                        return jsonify({'success': True, 'message': f'SMS failed. OTP sent to your email {email} instead.'})
+                    except Exception as email_error:
+                        return jsonify({'success': False, 'message': f'Both SMS and email failed. Please contact support.'})
             else:
                 try:
-                    import threading
-                    import signal
+                    msg = Message(
+                        subject="Your OTP Code - Voting System",
+                        sender=app.config['MAIL_DEFAULT_SENDER'],
+                        recipients=[email]
+                    )
+                    msg.body = f"Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System"
                     
-                    def send_email_with_timeout():
-                        try:
-                            msg = Message(
-                                subject="Your OTP Code",
-                                sender=current_app.config['MAIL_DEFAULT_SENDER'],
-                                recipients=[email]
-                            )
-                            msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System"
-                            mail.send(msg)
-                        except Exception as e:
-                            print(f"Email sending failed: {e}")
-                    
-                    # Send email in background thread with timeout
-                    email_thread = threading.Thread(target=send_email_with_timeout)
-                    email_thread.daemon = True
-                    email_thread.start()
-                    email_thread.join(timeout=3)  # 3 second timeout
+                    with app.app_context():
+                        mail.send(msg)
                     
                     return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your email.'})
                 except Exception as e:
-                    return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your email.'})
+                    return jsonify({'success': False, 'message': f'Failed to send OTP to {email}. Please try again.'})
         else:
             field_name = 'mobile number' if login_type == 'mobile' else 'email'
             return jsonify({'success': False, 'message': f'Invalid {field_name} or password.'})
