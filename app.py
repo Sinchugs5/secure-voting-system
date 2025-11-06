@@ -489,7 +489,7 @@ def login():
                 email_thread.start()
                 
                 # Wait 20 seconds then show OTP
-                time.sleep(10)
+                time.sleep(60)
                 return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your inbox and spam folder.'})
         else:
             field_name = 'mobile number' if login_type == 'mobile' else 'email'
