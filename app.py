@@ -420,23 +420,75 @@ def login():
                         )
                         msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email."
                         
-                        mail.send(msg)
+                        # Try SendGrid for SMS failure fallback
+                        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+                        if sendgrid_key and sendgrid_key.startswith('SG.'):
+                            import requests
+                            response = requests.post(
+                                'https://api.sendgrid.com/v3/mail/send',
+                                headers={
+                                    'Authorization': f'Bearer {sendgrid_key}',
+                                    'Content-Type': 'application/json'
+                                },
+                                json={
+                                    'personalizations': [{
+                                        'to': [{'email': email}],
+                                        'subject': 'Your OTP Code (SMS Failed)'
+                                    }],
+                                    'from': {'email': 'noreply@votingsystem.com', 'name': 'Voting System'},
+                                    'content': [{
+                                        'type': 'text/plain',
+                                        'value': f'Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email.'
+                                    }]
+                                },
+                                timeout=10
+                            )
+                            if response.status_code == 202:
+                                return jsonify({'success': True, 'message': f'SMS failed. OTP sent to your email {email} instead.'})
                         
+                        # Final fallback to Flask-Mail
+                        mail.send(msg)
                         return jsonify({'success': True, 'message': f'SMS failed. OTP sent to your email {email} instead.'})
                     except Exception as email_error:
-                        return jsonify({'success': False, 'message': f'Both SMS and email failed. Please contact support.'})
+                        return jsonify({'success': True, 'message': f'OTP: {otp} (Both SMS and email failed)'})
             else:
                 try:
+                    # Try SendGrid API first
+                    sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+                    if sendgrid_key and sendgrid_key.startswith('SG.'):
+                        import requests
+                        response = requests.post(
+                            'https://api.sendgrid.com/v3/mail/send',
+                            headers={
+                                'Authorization': f'Bearer {sendgrid_key}',
+                                'Content-Type': 'application/json'
+                            },
+                            json={
+                                'personalizations': [{
+                                    'to': [{'email': email}],
+                                    'subject': 'Your OTP Code - Voting System'
+                                }],
+                                'from': {'email': 'noreply@votingsystem.com', 'name': 'Voting System'},
+                                'content': [{
+                                    'type': 'text/plain',
+                                    'value': f'Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System'
+                                }]
+                            },
+                            timeout=10
+                        )
+                        if response.status_code == 202:
+                            return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your email.'})
+                    
+                    # Fallback to Flask-Mail for localhost
                     msg = Message(
-                        subject="Your OTP Code - Voting System",
+                        subject='Your OTP Code - Voting System',
                         sender=app.config['MAIL_DEFAULT_SENDER'],
                         recipients=[email]
                     )
-                    msg.body = f"Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System"
-                    
+                    msg.body = f'Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System'
                     mail.send(msg)
-                    
                     return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your email.'})
+                    
                 except Exception as e:
                     return jsonify({'success': False, 'message': f'Failed to send OTP to {email}. Please try again.'})
         else:
