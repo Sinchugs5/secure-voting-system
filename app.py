@@ -421,13 +421,27 @@ def login():
                         recipients=[email]
                     )
                     msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email."
-                    # Skip email sending to avoid delays
-                    # mail.send(msg)
-                    print(f"SMS failed for {mobile}. OTP: {otp}")
-                    return jsonify({'success': True, 'message': f'OTP sent to {mobile}. Check console for OTP: {otp}'})
+                    try:
+                        mail.send(msg)
+                        return jsonify({'success': True, 'message': f'SMS failed. OTP sent to your email {email} instead.'})
+                    except Exception as email_error:
+                        print(f"Both SMS and email failed. SMS error: {e}, Email error: {email_error}")
+                        print(f"Fallback - OTP for {mobile}: {otp}")
+                        return jsonify({'success': True, 'message': f'Both SMS and email failed. Check console for OTP: {otp}'})
             else:
-                print(f"Email OTP for {email}: {otp}")
-                return jsonify({'success': True, 'message': f'OTP sent to {email}. Check console for OTP: {otp}'})
+                try:
+                    msg = Message(
+                        subject="Your OTP Code",
+                        sender=current_app.config['MAIL_DEFAULT_SENDER'],
+                        recipients=[email]
+                    )
+                    msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System"
+                    mail.send(msg)
+                    return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your email.'})
+                except Exception as e:
+                    print(f"Email sending failed: {e}")
+                    print(f"Fallback - Email OTP for {email}: {otp}")
+                    return jsonify({'success': True, 'message': f'Email service temporarily unavailable. Check console for OTP: {otp}'})
         else:
             field_name = 'mobile number' if login_type == 'mobile' else 'email'
             return jsonify({'success': False, 'message': f'Invalid {field_name} or password.'})
