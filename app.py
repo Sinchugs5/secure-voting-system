@@ -46,11 +46,11 @@ app.config['SESSION_TYPE'] = 'filesystem'
 # ---------------- Flask-Mail config ----------------
 app.config['MAIL_SERVER'] = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('SMTP_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes')
-app.config['MAIL_USE_SSL'] = os.environ.get('MAIL_USE_SSL', 'False').lower() in ('true', '1', 'yes')
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER') or app.config['MAIL_USERNAME']
+app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
+app.config['MAIL_USE_SSL'] = os.environ.get('MAIL_USE_SSL', 'False').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'sitaraab9@gmail.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'nqpmixqnezivvxnq')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'sitaraab9@gmail.com')
 
 mail = Mail(app)
 Session(app)
@@ -420,8 +420,7 @@ def login():
                         )
                         msg.body = f"Hello {name},\n\nYour OTP is: {otp}\nThis code is valid for 5 minutes.\n\nNote: SMS to {mobile} failed, so we sent it to your email."
                         
-                        with app.app_context():
-                            mail.send(msg)
+                        mail.send(msg)
                         
                         return jsonify({'success': True, 'message': f'SMS failed. OTP sent to your email {email} instead.'})
                     except Exception as email_error:
@@ -435,8 +434,7 @@ def login():
                     )
                     msg.body = f"Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System"
                     
-                    with app.app_context():
-                        mail.send(msg)
+                    mail.send(msg)
                     
                     return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your email.'})
                 except Exception as e:
