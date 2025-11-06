@@ -1,0 +1,28 @@
+# Only exclude temporary/cache files
+flask_session/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+backup_files/
+
+# Keep ALL functionality files:
+# Election.db, static/uploads/, static/protocard/ - ALL INCLUDED

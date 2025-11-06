@@ -1,0 +1,56 @@
+<!-- templates/otp_verify.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify OTP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        form {
+            max-width: 400px;
+            margin: auto;
+        }
+        div {
+            margin-bottom: 15px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #2d89ef;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1b5fbd;
+        }
+    </style>
+</head>
+<body>
+    <h2>Enter OTP</h2>
+    
+    <form id="verifyForm" method="POST">
+        <!-- Hidden email field for backend reference -->
+        <input type="hidden" id="email" name="email" value="{{ email }}" />
+
+        <div>
+            <label for="otp">OTP</label>
+            <input id="otp" name="otp" type="text" maxlength="6" autocomplete="one-time-code" placeholder="Enter OTP" required />
+        </div>
+
+        <div>
+            <button type="submit">Verify OTP</button>
+        </div>
+    </form>
+
+    <!-- Optional JS for AJAX OTP verification -->
+    <script src="{{ url_for('static', filename='js/otp.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wait for Results</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .countdown {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #ff6b6b;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+  
+  <div class="glass w-full max-w-2xl p-8 text-center">
+    
+    <!-- Wait Icon -->
+    <div class="text-8xl mb-6 pulse">⏳</div>
+    
+    <!-- Title -->
+    <h1 class="text-4xl font-bold text-white mb-4">Wait for Results</h1>
+    <p class="text-white text-lg mb-8 opacity-90">Voting is still in progress. Results will be available after voting ends.</p>
+    
+    {% if schedule %}
+    <!-- Voting Schedule -->
+    <div class="bg-white bg-opacity-20 rounded-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold text-white mb-4">📅 Voting Schedule</h3>
+      <p class="text-white mb-2">{{ schedule[0] }} to {{ schedule[1] }}</p>
+      <p class="text-white mb-4">{{ schedule[2] }} - {{ schedule[3] }}</p>
+      
+      <!-- Countdown Timer -->
+      <div class="bg-white bg-opacity-30 rounded-lg p-4">
+        <p class="text-white mb-2">Time Remaining:</p>
+        <div id="countdown" class="countdown"></div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Action Buttons -->
+    <div class="flex gap-4 justify-center">
+      <button onclick="refreshPage()" 
+              class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition">
+        🔄 Refresh
+      </button>
+      
+      <button onclick="goBack()" 
+              class="px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition">
+        ← Back
+      </button>
+    </div>
+  </div>
+
+  <script>
+    {% if schedule %}
+    try {
+      // Calculate end time
+      const endDate = new Date('{{ schedule[1] }}T{{ schedule[3] }}');
+      
+      if (isNaN(endDate.getTime())) {
+        console.error('Invalid date format');
+        document.getElementById('countdown').innerHTML = 'Invalid Date';
+      } else {
+        function updateCountdown() {
+          const now = new Date();
+          const timeLeft = endDate - now;
+          
+          const countdownEl = document.getElementById('countdown');
+          if (!countdownEl) return;
+          
+          if (timeLeft <= 0) {
+            countdownEl.innerHTML = 'Voting Ended!';
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+            return;
+          }
+          
+          const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+          
+          let countdownText = '';
+          if (days > 0) countdownText += days + 'd ';
+          if (hours > 0) countdownText += hours + 'h ';
+          if (minutes > 0) countdownText += minutes + 'm ';
+          countdownText += seconds + 's';
+          
+          countdownEl.innerHTML = countdownText;
+        }
+        
+        // Update countdown every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+      }
+    } catch (error) {
+      console.error('Countdown error:', error);
+      const countdownEl = document.getElementById('countdown');
+      if (countdownEl) countdownEl.innerHTML = 'Error loading countdown';
+    }
+    {% endif %}
+    
+    function refreshPage() {
+      window.location.reload();
+    }
+    
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/static/js/lang-simple.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background-size: 600% 600%;
+      animation: rainbow 15s ease infinite;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    @keyframes rainbow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    h2 span {
+      background: linear-gradient(to right, #ff6a00, #ee0979);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .modal-bg {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen px-6 relative">
+
+  <!-- Language Selector -->
+  <div class="absolute top-4 right-4 z-10">
+    <select onchange="changeLanguage(this.value)" class="px-3 py-2 rounded bg-white bg-opacity-20 text-white border border-white">
+      <option value="en">English</option>
+      <option value="kn">ಕನ್ನಡ</option>
+      <option value="hi">हिंदी</option>
+    </select>
+  </div>
+
+  <!-- Main Glass Card -->
+  <div class="glass w-full max-w-6xl p-10 shadow-xl">
+    <h2 class="text-4xl font-extrabold text-center mb-10"><span data-translate="student_login">Student Login</span></h2>
+    
+    <div class="flex flex-col lg:flex-row gap-12">
+      <!-- Webcam + Face Login -->
+      <div class="flex-1 flex flex-col items-center justify-center">
+        <video id="video" autoplay class="rounded-xl shadow-xl border border-white w-full max-w-md mb-6 h-64 object-cover"></video>
+        <button id="faceLoginBtn" class="px-6 py-3 rounded-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-500 text-black hover:from-green-400 hover:to-teal-400 transition-transform hover:scale-105" data-translate="face_login">Face Login</button>
+        <p class="text-white text-sm mt-2 text-center">Complete OTP verification first, then verify your face</p>
+      </div>
+
+      <!-- Email/Password Login + OTP -->
+      <div class="flex-1 flex flex-col justify-center space-y-6">
+        <!-- Email + Password Login -->
+        <!-- Email/Mobile Toggle -->
+        <div class="flex justify-center mb-4">
+          <button type="button" id="emailTab" onclick="switchTab('email')" class="px-4 py-2 bg-blue-500 text-white rounded-l-lg">Email Login</button>
+          <button type="button" id="mobileTab" onclick="switchTab('mobile')" class="px-4 py-2 bg-gray-500 text-white rounded-r-lg">Mobile Login</button>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+          <div>
+            <label class="block mb-2 font-semibold text-white" data-translate="email">Email/Mobile</label>
+            <input id="loginField" type="email" data-translate="email" placeholder="Enter your email" required class="w-full px-4 py-3 rounded-md bg-white bg-opacity-20 text-white placeholder-white border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          </div>
+          <div>
+            <label class="block mb-2 font-semibold text-white" data-translate="password">Password</label>
+            <input id="password" type="password" data-translate="password" placeholder="Password" required class="w-full px-4 py-3 rounded-md bg-white bg-opacity-20 text-white placeholder-white border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          </div>
+          <button type="submit" class="w-full px-6 py-3 rounded-lg font-bold bg-gradient-to-r from-pink-400 to-red-500 text-white hover:from-yellow-400 hover:to-orange-500 transition-transform hover:scale-105" data-translate="login">Login</button>
+        </form>
+        
+        <!-- Create New Profile Link -->
+        <div class="text-center mt-4">
+          <a href="/student-registration" class="text-white hover:text-blue-300 underline text-sm" data-translate="dont_have_account">Don't have an account? Create New Profile</a>
+        </div>
+
+        <!-- Location section -->
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="location">Location</label>
+          <div class="flex gap-2">
+            <input id="locationField" type="text" placeholder="Click button to get location" readonly class="flex-1 px-4 py-3 rounded-md bg-white bg-opacity-20 text-white placeholder-white border border-white border-opacity-30" />
+            <button type="button" onclick="getLocationManual()" class="px-4 py-3 bg-purple-500 hover:bg-purple-700 text-white rounded-md transition">📍</button>
+          </div>
+        </div>
+
+        <!-- OTP verification section -->
+        <div id="otpSection" class="hidden space-y-4">
+          <div>
+            <label class="block mb-2 font-semibold text-white" data-translate="enter_otp">OTP</label>
+            <input id="otpInput" type="text" data-translate="enter_otp" placeholder="Enter OTP" class="w-full px-4 py-3 rounded-md bg-white bg-opacity-20 text-white placeholder-white border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-green-400" />
+          </div>
+          <button id="verifyOtpBtn" class="w-full px-6 py-3 rounded-lg font-bold bg-gradient-to-r from-green-400 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 transition-transform hover:scale-105" data-translate="verify_otp">Verify OTP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success/Error Modal -->
+  <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-bg">
+    <div class="bg-white max-w-2xl w-full rounded-lg p-8 shadow-lg relative text-gray-800">
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner Modal -->
+  <div id="loadingModal" class="hidden fixed inset-0 z-40 flex items-center justify-center modal-bg">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-white font-semibold text-lg">Processing...</p>
+    </div>
+  </div>
+
+<script>
+const video = document.getElementById('video');
+const faceLoginBtn = document.getElementById('faceLoginBtn');
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modalContent');
+const loadingModal = document.getElementById('loadingModal');
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => { video.srcObject = stream; })
+  .catch(err => console.error("Webcam access denied: ", err));
+
+function toggleLoading(show = true) {
+  if (show) loadingModal.classList.remove('hidden');
+  else loadingModal.classList.add('hidden');
+}
+
+function showModal(content) {
+  modalContent.innerHTML = content;
+  modal.classList.remove('hidden');
+}
+modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+
+// Capture image from webcam
+async function captureImage() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 640;
+  canvas.height = 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+}
+
+// Manual location capture
+let locationData = { latitude: '', longitude: '', location: '' };
+
+async function getLocationManual() {
+  const locationField = document.getElementById('locationField');
+  locationField.value = '📍 Davanagere, Karnataka, India';
+  locationData.latitude = '14.4644';
+  locationData.longitude = '75.9221';
+  locationData.location = 'Davanagere, Karnataka, India';
+}
+
+// ------------------- Face login -------------------
+faceLoginBtn.addEventListener('click', async () => {
+  const loginField = document.getElementById('loginField');
+  if (!loginField) { alert("Login field not found"); return; }
+  const loginValue = loginField.value.trim();
+  if (!loginValue) { alert("Enter login credentials first."); return; }
+
+  faceLoginBtn.disabled = true;
+  faceLoginBtn.innerText = "Processing...";
+  toggleLoading(true);
+
+  const imageBlob = await captureImage();
+  const formData = new FormData();
+  formData.append('photo', imageBlob, 'face.png');
+  formData.append('username', loginValue);
+  formData.append('loginType', currentLoginType);
+  formData.append('latitude', locationData.latitude);
+  formData.append('longitude', locationData.longitude);
+  formData.append('location', locationData.location);
+
+  try {
+    const response = await fetch('/face-login', { method: 'POST', body: formData });
+    const result = await response.json();
+    toggleLoading(false);
+    faceLoginBtn.disabled = false;
+    faceLoginBtn.innerText = "Face Login";
+
+    if (!result.success) {
+      showModal(`<h2 class="text-2xl font-bold mb-4 text-red-600">Oops!</h2><p>${result.message}</p>`);
+    } else {
+      showModal(`<h2 class="text-2xl font-bold mb-6 text-green-600 text-center">🎉 Authentication Complete</h2>
+        <p>Both OTP and Face verified! Redirecting to voter details...</p>`);
+      const redirectUrl = result.redirect || "/voter-details";
+      setTimeout(() => window.location.href = redirectUrl, 1500);
+    }
+  } catch (err) {
+    toggleLoading(false);
+    faceLoginBtn.disabled = false;
+    faceLoginBtn.innerText = "Face Login";
+    showModal(`<h2 class="text-2xl font-bold mb-4 text-red-600">Oops!</h2><p>Something went wrong.</p>`);
+    console.error(err);
+  }
+});
+
+// ------------------- Traditional login + OTP -------------------
+let currentLoginType = 'email';
+
+function switchTab(type) {
+  currentLoginType = type;
+  const loginField = document.getElementById('loginField');
+  const emailTab = document.getElementById('emailTab');
+  const mobileTab = document.getElementById('mobileTab');
+  
+  if (type === 'email') {
+    loginField.type = 'email';
+    loginField.placeholder = 'Enter your email';
+    emailTab.classList.add('bg-blue-500');
+    emailTab.classList.remove('bg-gray-500');
+    mobileTab.classList.add('bg-gray-500');
+    mobileTab.classList.remove('bg-blue-500');
+  } else {
+    loginField.type = 'tel';
+    loginField.placeholder = 'Enter your mobile number';
+    mobileTab.classList.add('bg-blue-500');
+    mobileTab.classList.remove('bg-gray-500');
+    emailTab.classList.add('bg-gray-500');
+    emailTab.classList.remove('bg-blue-500');
+  }
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const loginField = document.getElementById('loginField');
+  if (!loginField) {
+    alert('Login field not found');
+    return;
+  }
+  const loginValue = loginField.value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  toggleLoading(true);
+  try {
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loginType: currentLoginType, loginValue: loginValue, password: password })
+    });
+    const result = await response.json();
+    toggleLoading(false);
+
+    if (result.success) {
+      document.getElementById("otpSection").classList.remove("hidden");
+      showModal(`<h2 class="text-2xl font-bold mb-4 text-blue-600">OTP Sent!</h2><p>${result.message}</p>`);
+    } else {
+      showModal(`<h2 class="text-2xl font-bold mb-4 text-red-600">Login Failed</h2><p>${result.message}</p>`);
+    }
+  } catch(err) { toggleLoading(false); console.error(err); }
+});
+
+// ------------------- Verify OTP -------------------
+document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
+  const loginField = document.getElementById('loginField');
+  const otpField = document.getElementById('otpInput');
+  
+  if (!loginField || !otpField) {
+    alert('Required fields not found');
+    return;
+  }
+  
+  const loginValue = loginField.value.trim();
+  const otp = otpField.value.trim();
+
+  if (!otp) { alert("Enter OTP"); return; }
+
+  toggleLoading(true);
+  try {
+    const response = await fetch('/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loginType: currentLoginType, loginValue: loginValue, otp: otp })
+    });
+    const result = await response.json();
+    toggleLoading(false);
+
+    console.log('OTP Verify Response:', result);
+    if (result.message === "otp_verified" || result.success) {
+      showModal(`<h2 class="text-2xl font-bold mb-4 text-green-600">OTP Verified!</h2><p>Now please verify your face...</p>`);
+      setTimeout(() => {
+        document.getElementById("otpSection").classList.add("hidden");
+        document.getElementById("faceLoginBtn").innerText = "Verify Face to Continue";
+        document.getElementById("faceLoginBtn").classList.remove("from-cyan-400", "to-blue-500");
+        document.getElementById("faceLoginBtn").classList.add("from-green-400", "to-teal-500");
+      }, 1500);
+    } else {
+      showModal(`<h2 class="text-2xl font-bold mb-4 text-red-600">OTP Error</h2><p>${result.error || result.message}</p>`);
+    }
+  } catch(err) { toggleLoading(false); console.error(err); }
+});
+</script>
+</body>
+</html>

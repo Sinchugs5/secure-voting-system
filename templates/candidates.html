@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vote for Your Candidate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb);
+      background-size: 200% 200%;
+      animation: gradientBG 15s ease infinite;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .radio-button {
+      accent-color: #4caf50;
+      transform: scale(1.5);
+    }
+
+    .profile-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 4px solid #4caf50;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .profile-photo:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-modal {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb);
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      animation: flyIn 0.5s ease-in-out;
+    }
+
+    @keyframes flyIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+  <!-- Logout Button -->
+  <div class="w-full flex justify-end mb-6">
+    <button onclick="logout()" class="px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition">
+      Logout
+    </button>
+  </div>
+
+  <!-- User Profile Section -->
+  <div class="flex items-center justify-center mb-6">
+    <img src="{{ user['photo'] }}" alt="User Photo" class="profile-photo" onclick="openProfileModal()" />
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="profile-modal p-8 text-center shadow-xl w-full max-w-md relative">
+      <button onclick="closeProfileModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">&times;</button>
+      <h2 class="text-2xl font-bold mb-4">Your Profile</h2>
+      <img src="{{ user['photo'] }}" alt="User Photo" class="w-32 h-32 rounded-full mx-auto mb-4" />
+      <p><strong>Name:</strong> {{ user['name'] }}</p>
+      <p><strong>Username:</strong> {{ user['username'] }}</p>
+      <p><strong>Email:</strong> {{ user['email'] }}</p>
+      <p><strong>Age:</strong> {{ user['age'] }} years</p>
+      <p><strong>Gender:</strong> {{ user['gender'] }}</p>
+      <p><strong>Date of Birth:</strong> {{ user['date_of_birth'] }}</p>
+    </div>
+  </div>
+
+  <h1 class="text-4xl font-extrabold text-center mb-10 text-white">Vote for Your Candidate</h1>
+  <form id="voteForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+    {% for candidate in candidates %}
+    <div class="card flex items-center p-6">
+      <img src="{{ candidate[2] }}" alt="Candidate Photo" class="w-32 h-32 rounded-full border-4 border-blue-400 shadow-lg mr-6" />
+      <div class="flex-1">
+        <h2 class="text-xl font-bold text-gray-800">{{ candidate[0] }}</h2>
+        <p class="text-gray-600"><strong>Party:</strong> {{ candidate[1] if candidate[1] else 'Independent' }}</p>
+        {% if candidate[3] %}
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-gray-600"><strong>Symbol:</strong></span>
+          <img src="{{ candidate[3] }}" alt="Party Symbol" class="w-12 h-12 rounded border" />
+        </div>
+        {% endif %}
+        <p class="text-gray-600"><strong>Age:</strong> {{ candidate[4] if candidate[4] else 'N/A' }}</p>
+        <p class="text-gray-600"><strong>Gender:</strong> {{ candidate[5] if candidate[5] else 'N/A' }}</p>
+        <p class="text-gray-600"><strong>Email:</strong> {{ candidate[6] if candidate[6] else 'N/A' }}</p>
+        <p class="text-gray-600"><strong>Phone:</strong> {{ candidate[7] if candidate[7] else 'N/A' }}</p>
+        <p class="text-gray-600"><strong>Description:</strong> {{ candidate[8] if candidate[8] else 'No description' }}</p>
+      </div>
+      <input type="radio" name="selectedCandidate" value="{{ candidate[0] }}" class="radio-button ml-4" required />
+    </div>
+    {% endfor %}
+    <button type="submit" class="col-span-full mt-6 px-6 py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition">Submit Vote</button>
+  </form>
+
+  <!-- Emotion Security Check Modal -->
+  <div id="emotionCheck" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-8 text-center shadow-xl w-full max-w-md relative">
+      <h2 class="text-2xl font-bold mb-4 text-blue-600">🔒 Security Verification</h2>
+      <p class="text-gray-700 mb-4">For your security, we need to verify you are voting freely without coercion.</p>
+      <video id="emotionVideo" width="300" height="200" autoplay class="rounded mb-4"></video>
+      <canvas id="emotionCanvas" width="300" height="200" class="hidden"></canvas>
+      <button id="captureEmotion" class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">Capture & Continue</button>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-8 text-center shadow-xl w-full max-w-md relative">
+      <h2 class="text-2xl font-bold mb-4 text-green-600">✅ Vote Submitted Successfully!</h2>
+      <p id="emailStatus" class="text-gray-700 mb-4">Processing confirmation...</p>
+      <button onclick="logout()" class="mt-4 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">Continue</button>
+    </div>
+  </div>
+
+  <script src="/static/js/network-info.js"></script>
+  <script src="/static/js/video-proctoring.js"></script>
+  <script>
+    // Start video proctoring when page loads
+    let proctoringStarted = false;
+    
+    window.addEventListener('load', async () => {
+      // Add proctoring video element first
+      const proctoringDiv = document.createElement('div');
+      proctoringDiv.innerHTML = `
+        <div style="position: fixed; top: 10px; left: 10px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px;">
+          <video id="proctoring-video" width="120" height="90" autoplay muted style="border-radius: 4px;"></video>
+          <div style="color: white; font-size: 12px; text-align: center; margin-top: 5px;">🔴 Recording</div>
+        </div>
+      `;
+      document.body.appendChild(proctoringDiv);
+      
+      // Start proctoring after video element is added
+      const success = await window.videoProctoring.startProctoring();
+      if (success) {
+        proctoringStarted = true;
+      }
+    });
+
+    // Logout function
+    async function logout() {
+      if (proctoringStarted) {
+        const report = await window.videoProctoring.stopProctoring();
+        await window.videoProctoring.uploadRecording('{{ user["username"] }}');
+      }
+      
+      const response = await fetch('/logout', { method: 'POST' });
+      if (response.ok) {
+        window.location.href = '/';
+      } else {
+        alert('Failed to logout. Please try again.');
+      }
+    }
+
+    function openProfileModal() {
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.add('hidden');
+    }
+
+    let emotionPhoto = null;
+    let stream = null;
+
+    document.getElementById('voteForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const selectedCandidate = document.querySelector('input[name="selectedCandidate"]:checked').value;
+      
+      // Show emotion check
+      document.getElementById('emotionCheck').classList.remove('hidden');
+      await startEmotionCapture();
+    });
+
+    async function startEmotionCapture() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('emotionVideo').srcObject = stream;
+      } catch (err) {
+        console.error('Camera access denied:', err);
+        submitVoteWithoutEmotion();
+      }
+    }
+
+    document.getElementById('captureEmotion').addEventListener('click', function() {
+      const video = document.getElementById('emotionVideo');
+      const canvas = document.getElementById('emotionCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      ctx.drawImage(video, 0, 0, 300, 200);
+      emotionPhoto = canvas.toDataURL('image/png');
+      
+      // Stop camera
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      document.getElementById('emotionCheck').classList.add('hidden');
+      submitVoteWithEmotion();
+    });
+
+    async function submitVoteWithEmotion() {
+      const selectedCandidate = document.querySelector('input[name="selectedCandidate"]:checked').value;
+      
+      const response = await fetch('/submit-vote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          candidate: selectedCandidate,
+          emotionPhoto: emotionPhoto
+        }),
+      });
+
+      const result = await response.json();
+      handleVoteResult(result);
+    }
+
+    async function submitVoteWithoutEmotion() {
+      const selectedCandidate = document.querySelector('input[name="selectedCandidate"]:checked').value;
+      
+      const response = await fetch('/submit-vote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ candidate: selectedCandidate }),
+      });
+
+      const result = await response.json();
+      handleVoteResult(result);
+    }
+
+    async function handleVoteResult(result) {
+      if (result.success) {
+        // Stop proctoring and upload data
+        if (proctoringStarted) {
+          const report = await window.videoProctoring.stopProctoring();
+          await window.videoProctoring.uploadRecording('{{ user["username"] }}');
+        }
+        
+        const emailStatus = document.getElementById('emailStatus');
+        const method = result.method === 'mobile' ? 'SMS' : 'email';
+        const icon = result.method === 'mobile' ? '📱' : '📧';
+        
+        if (result.confirmation_sent) {
+          emailStatus.innerHTML = `${icon} Confirmation ${method} sent successfully.<br>🔒 Session monitored for security.`;
+          emailStatus.className = 'text-green-600 mb-4';
+        } else {
+          emailStatus.innerHTML = `⚠️ Vote recorded successfully. ${method} confirmation may be delayed.<br>🔒 Session monitored for security.`;
+          emailStatus.className = 'text-orange-600 mb-4';
+        }
+        document.getElementById('successModal').classList.remove('hidden');
+      } else {
+        if (result.security_alert) {
+          alert('🔒 Security Alert: ' + result.message + '\n\nIf you are being coerced, please contact election officials.');
+        } else {
+          alert(result.message || 'Failed to submit vote.');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

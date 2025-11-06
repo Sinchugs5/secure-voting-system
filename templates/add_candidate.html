@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Candidate - Voting System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/lang-simple.js"></script>
+    <script>
+        // Make translations available to other functions
+        window.translations = translations;
+    </script>
+    <style>
+        .figma-glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        .figma-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .figma-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .figma-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .file-upload {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 flex items-center justify-center p-4">
+    
+    <!-- Main Container -->
+    <div class="figma-glass w-full max-w-2xl p-8">
+        
+        <!-- Language Selector -->
+        <div class="absolute top-4 right-4">
+            <select onchange="changeLanguage(this.value)" class="px-3 py-2 rounded bg-white bg-opacity-20 text-gray-800 border border-white">
+                <option value="en">English</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="hi">हिंदी</option>
+            </select>
+        </div>
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
+                <span class="text-2xl">👤</span>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2" data-translate="add_candidate_title">Add New Candidate</h1>
+            <p class="text-gray-600" data-translate="candidate_profile_desc">Create candidate profiles for the election</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="figma-card p-8">
+            <form action="/add_candidate" method="POST" enctype="multipart/form-data" class="space-y-6">
+                
+                <!-- Candidate Name -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <span class="flex items-center gap-2">
+                            <span class="text-blue-500">👤</span>
+                            <span data-translate="name">Candidate Name</span>
+                        </span>
+                    </label>
+                    <input type="text" name="candidate_name" required
+                           class="form-input w-full text-gray-800"
+                           placeholder="Enter full name" data-translate-placeholder="enter_full_name">
+                </div>
+
+                <!-- Class/Department -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <span class="flex items-center gap-2">
+                            <span class="text-purple-500">🏫</span>
+                            <span data-translate="class">Class/Department</span>
+                        </span>
+                    </label>
+                    <input type="text" name="class_department" required
+                           class="form-input w-full text-gray-800"
+                           placeholder="e.g., Computer Science" data-translate-placeholder="enter_class">
+                </div>
+
+                <!-- Profile Photo -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <span class="flex items-center gap-2">
+                            <span class="text-pink-500">📸</span>
+                            <span data-translate="profile_photo">Profile Photo</span>
+                        </span>
+                    </label>
+                    <div class="file-upload p-6 text-center cursor-pointer" onclick="document.getElementById('photo').click()">
+                        <input type="file" id="photo" name="profile_photo" accept="image/*" class="hidden" onchange="updateFileName(this)">
+                        <div id="upload-content">
+                            <div class="w-12 h-12 bg-white bg-opacity-30 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <span class="text-white text-xl">📁</span>
+                            </div>
+                            <p class="text-white font-medium mb-1" data-translate="click_upload">Click to upload photo</p>
+                            <p class="text-white text-sm opacity-80" data-translate="no_file">No file chosen</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <span class="flex items-center gap-2">
+                            <span class="text-green-500">📝</span>
+                            <span data-translate="description">Description</span>
+                        </span>
+                    </label>
+                    <textarea name="description" rows="4" required
+                              class="form-input w-full text-gray-800 resize-none"
+                              placeholder="Brief description about the candidate" data-translate-placeholder="enter_description"></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" class="figma-button w-full py-4 text-lg flex items-center justify-center gap-3">
+                        <span class="text-xl">✨</span>
+                        <span data-translate="submit">Add Candidate</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-6">
+            <button onclick="history.back()" class="px-6 py-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition font-medium">
+                <span data-translate="back">← Back to Dashboard</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function updateFileName(input) {
+            const uploadContent = document.getElementById('upload-content');
+            if (input.files && input.files[0]) {
+                const fileName = input.files[0].name;
+                const lang = localStorage.getItem('selectedLanguage') || 'en';
+                const photoSelectedText = translations[lang]['photo_selected'] || 'Photo selected';
+                uploadContent.innerHTML = `
+                    <div class="w-12 h-12 bg-white bg-opacity-30 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-white text-xl">✅</span>
+                    </div>
+                    <p class="text-white font-medium mb-1">${photoSelectedText}</p>
+                    <p class="text-white text-sm opacity-80">${fileName}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

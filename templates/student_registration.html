@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>STUDENT REGISTRATION</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/static/js/lang-simple.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e3c72, #2a5298, #4169e1, #6495ed, #1e90ff, #0066cc);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-8">
+  <div class="glass w-full max-w-6xl p-10">
+    <!-- Language Selector -->
+    <div class="absolute top-4 right-4 z-10">
+      <select onchange="changeLanguage(this.value)" class="px-3 py-2 rounded bg-gray-300 text-black border border-gray-400">
+        <option value="en">English</option>
+        <option value="kn">ಕನ್ನಡ</option>
+        <option value="hi">हिंदी</option>
+      </select>
+    </div>
+    
+    <h1 class="text-5xl font-extrabold text-center text-white mb-10" data-translate="student_registration">VOTER REGISTRATION</h1>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      
+      <!-- Left: Form -->
+      <div class="space-y-5 text-white">
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="full_name">Full Name</label>
+          <input type="text" id="fullName" data-translate-placeholder="full_name" placeholder="Full Name" required class="w-full p-3 rounded bg-white bg-opacity-20 placeholder-white border border-white"/>
+        </div>
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="date_of_birth">Date of Birth</label>
+          <input type="date" id="dateOfBirth" placeholder="Date of Birth" required class="w-full p-3 rounded bg-white bg-opacity-20 placeholder-white border border-white" onchange="calculateAge()"/>
+        </div>
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="age">Age</label>
+          <input type="number" id="age" data-translate-placeholder="age" placeholder="Age" readonly class="w-full p-3 rounded bg-white bg-opacity-20 placeholder-white border border-white"/>
+        </div>
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="gender">Gender</label>
+          <select id="gender" required class="w-full p-3 rounded bg-gray-300 text-black border border-gray-400">
+            <option value="" disabled selected data-translate="select_gender">Select Gender</option>
+            <option value="Male" data-translate="male">Male</option>
+            <option value="Female" data-translate="female">Female</option>
+            <option value="Other" data-translate="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="email">Email ID</label>
+          <input type="email" id="email" data-translate-placeholder="email" placeholder="Email ID" required class="w-full p-3 rounded bg-white bg-opacity-20 placeholder-white border border-white"/>
+        </div>
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="mobile">Mobile Number</label>
+          <input type="tel" id="mobile" data-translate-placeholder="mobile" placeholder="Mobile Number" required class="w-full p-3 rounded bg-white bg-opacity-20 placeholder-white border border-white"/>
+        </div>
+        
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="username">Username</label>
+          <div class="relative">
+            <input type="text" id="username" data-translate-placeholder="username" placeholder="Username" readonly class="w-full p-3 rounded bg-white bg-opacity-20 placeholder-white border border-white"/>
+            <button type="button" onclick="generateUsername()" class="absolute top-2 right-2 bg-white bg-opacity-20 text-xs px-2 py-1 rounded hover:bg-opacity-40" data-translate="generate">Generate</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="password">Password</label>
+          <input type="password" id="password" data-translate-placeholder="password" placeholder="Password" required class="w-full p-3 rounded bg-white bg-opacity-20 placeholder-white border border-white"/>
+        </div>
+        
+        <div>
+          <label class="block mb-2 font-semibold text-white" data-translate="location">Location</label>
+          <div class="flex gap-2">
+            <input type="text" id="locationField" data-translate-placeholder="click_button_location" placeholder="Click button to get location" readonly class="flex-1 p-3 rounded bg-white bg-opacity-20 placeholder-white border border-white text-sm"/>
+            <button type="button" onclick="getLocationManual()" class="px-4 py-3 bg-blue-500 hover:bg-blue-700 text-white rounded transition">📍</button>
+          </div>
+        </div>
+        
+        <button onclick="submitForm()" class="w-full bg-green-400 hover:bg-green-600 text-white font-bold py-3 rounded transition" data-translate="create_profile">Create Profile</button>
+      </div>
+
+      <!-- Right: Webcam & Capture -->
+      <div class="flex flex-col items-center justify-center">
+        <video id="video" autoplay class="rounded-lg border border-white w-full max-w-md h-64 object-cover mb-4"></video>
+        <img id="capturedImage" class="hidden w-full max-w-md h-64 rounded-lg border mb-4"/>
+        <button id="captureBtn" onclick="capturePhoto()" class="bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded transition" data-translate="take_photo">Take Photo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 hidden bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-8 text-center shadow-xl">
+      <h2 class="text-2xl font-bold mb-4" data-translate="profile_created">✅ Profile Created Successfully!</h2>
+      <button onclick="redirectToLogin()" class="mt-4 px-6 py-2 bg-purple-500 text-white rounded hover:bg-purple-700" data-translate="go_to_login">Go to Login</button>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById("video");
+    const capturedImage = document.getElementById("capturedImage");
+
+    // Init webcam
+    async function initWebcam() {
+      try {
+        let stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (error) {
+        alert('Webcam access denied or not available.');
+      }
+    }
+
+    function capturePhoto() {
+  let canvas = document.createElement("canvas");
+  let ctx = canvas.getContext("2d");
+
+  // Resize to smaller size (e.g., 320x240)
+  canvas.width = 320;
+  canvas.height = 240;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Compress image (JPEG, quality 0.7)
+  let dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+
+  capturedImage.src = dataUrl;
+  capturedImage.classList.remove("hidden");
+}
+
+    function generateUsername() {
+      const fullName = document.getElementById('fullName').value.trim();
+      const dateOfBirth = document.getElementById('dateOfBirth').value;
+      if (fullName && dateOfBirth) {
+        const birthYear = new Date(dateOfBirth).getFullYear();
+        const username = fullName.split(" ")[0].toLowerCase() + "_" + birthYear;
+        document.getElementById('username').value = username;
+      } else {
+        alert('Please enter Full Name and Date of Birth.');
+      }
+    }
+
+    function calculateAge() {
+      const dateOfBirth = document.getElementById('dateOfBirth').value;
+      if (dateOfBirth) {
+        const today = new Date();
+        const birthDate = new Date(dateOfBirth);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        
+        document.getElementById('age').value = age;
+        
+        if (age < 18) {
+          alert('You are not eligible for voting. Minimum age requirement is 18 years.');
+          return false;
+        }
+        return true;
+      }
+    }
+
+    function redirectToLogin() {
+      window.location.href = '/student-login';
+    }
+
+    let locationData = { latitude: '', longitude: '', location: '' };
+
+    async function getLocationManual() {
+      const locationField = document.getElementById('locationField');
+      locationField.value = '📍 Davanagere, Karnataka, India';
+      locationData.latitude = '14.4644';
+      locationData.longitude = '75.9221';
+      locationData.location = 'Davanagere, Karnataka, India';
+    }
+
+    async function submitForm() {
+      let fullName = document.getElementById("fullName").value;
+      let dateOfBirth = document.getElementById("dateOfBirth").value;
+      let age = document.getElementById("age").value;
+      let gender = document.getElementById("gender").value;
+      let email = document.getElementById("email").value;
+      let mobile = document.getElementById("mobile").value;
+      let username = document.getElementById("username").value;
+      let password = document.getElementById("password").value;
+
+      // Check age eligibility
+      if (!calculateAge()) {
+        return;
+      }
+
+      if (!capturedImage.src) {
+        alert("Please capture a photo first.");
+        return;
+      }
+
+      let photoData = capturedImage.src;
+
+      // Build form data
+      let formData = new FormData();
+      formData.append("fullName", fullName);
+      formData.append("dateOfBirth", dateOfBirth);
+      formData.append("age", age);
+      formData.append("gender", gender);
+      formData.append("email", email);
+      formData.append("mobile", mobile);
+      formData.append("username", username);
+      formData.append("password", password);
+      formData.append("photoData", photoData);
+      formData.append("latitude", locationData.latitude);
+      formData.append("longitude", locationData.longitude);
+      formData.append("location", locationData.location);
+
+      // Send to Flask
+      fetch("/register", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("successModal").classList.remove("hidden");
+        } else {
+          alert("Failed: " + data.message);
+        }
+      })
+      .catch(error => console.error("Error:", error));
+    }
+
+    window.onload = initWebcam;
+  </script>
+</body>
+</html>

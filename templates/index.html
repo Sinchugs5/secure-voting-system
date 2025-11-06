@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Face Login Election System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/static/js/lang-simple.js"></script>
+  <style>
+    body {
+      background: url('/static/images/election.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      opacity: 0.8;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(129, 110, 110, 0.1);
+      z-index: -1;
+    }
+
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .glow-button {
+      position: relative;
+      overflow: hidden;
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .glow-button::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, #00ffe0, #0066ff);
+      animation: rotateGlow 3s linear infinite;
+      opacity: 0.2;
+    }
+
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .glow-button:hover {
+      background-color: #00ffe0 !important;
+      color: #000 !important;
+      transform: scale(1.05);
+    }
+
+    h1 span {
+      color: #3207a9;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+
+  </style>
+</head>
+
+<body class="min-h-screen px-4 py-8">
+  
+
+  
+  <!-- Language Selector -->
+  <div class="absolute top-6 right-6 z-20">
+    <div class="glass p-3 rounded-lg">
+      <select onchange="changeLanguage(this.value)" class="bg-gray-300 text-black font-semibold outline-none cursor-pointer rounded px-2 py-1">
+        <option value="en" class="text-black">🇺🇸 English</option>
+        <option value="kn" class="text-black">🇮🇳 ಕನ್ನಡ</option>
+        <option value="hi" class="text-black">🇮🇳 हिंदी</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="glass p-12 max-w-5xl w-full text-center card-hover">
+      
+      <!-- Header -->
+      <div class="floating mb-8">
+        <div class="flex items-center justify-center gap-4 mb-4">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/200px-Emblem_of_India.svg.png" alt="National Emblem of India" class="w-16 h-16 object-contain" />
+          <h2 class="text-4xl font-extrabold text-white">State Election Commission, Karnataka</h2>
+        </div>
+        <div class="text-8xl mb-4">🗳️</div>
+        <h1 class="text-6xl font-extrabold mb-4 drop-shadow-lg">
+          <span data-translate="election_system">Face Login Election System</span>
+        </h1>
+        <p class="text-black text-xl opacity-90 mb-8" data-translate="secure_voting">Secure Digital Voting Platform</p>
+      </div>
+
+
+
+      <!-- View Results Card -->
+      <div class="flex justify-center mb-8">
+        <div class="glass p-6 rounded-xl card-hover" onclick="window.open('/results', '_blank')">
+          <div class="text-4xl mb-3">📈</div>
+          <h3 class="text-2xl font-black text-black mb-2">Election Results</h3>
+          <p class="text-black opacity-80 text-lg mb-4">View live voting results</p>
+          <button class="glow-button bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-3 rounded-xl text-lg font-black">
+            📊 View Results
+          </button>
+        </div>
+      </div>
+
+
+
+<!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row justify-center gap-6 mt-8">
+        <button onclick="openAdminLoginModal()" class="glow-button bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 rounded-xl shadow-xl text-lg font-bold" data-translate="admin_login">👨‍💼 Admin Login</button>
+        <a href="/student-login">
+          <button class="glow-button bg-gradient-to-r from-green-500 to-teal-500 px-8 py-4 rounded-xl shadow-xl text-lg font-bold" data-translate="voter_login">🗳️ Voter Login</button>
+        </a>
+        <a href="/student-registration">
+          <button class="glow-button bg-gradient-to-r from-orange-500 to-red-500 px-8 py-4 rounded-xl shadow-xl text-lg font-bold" data-translate="register_now">📝 Register Now</button>
+        </a>
+      </div>
+
+
+
+      <!-- Feature Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+        <div class="glass p-6 rounded-xl card-hover">
+          <div class="text-4xl mb-3">🔐</div>
+          <h3 class="text-2xl font-black text-black mb-2" data-translate="secure_auth">Secure Authentication</h3>
+          <p class="text-black opacity-80 text-lg" data-translate="otp_face_verify">OTP + Face Verification</p>
+        </div>
+        
+        <div class="glass p-6 rounded-xl card-hover">
+          <div class="text-4xl mb-3">📍</div>
+          <h3 class="text-2xl font-black text-black mb-2" data-translate="location_tracking">Location Tracking</h3>
+          <p class="text-black opacity-80 text-lg" data-translate="geo_verification">Geo-location Verification</p>
+        </div>
+        
+        <div class="glass p-6 rounded-xl card-hover">
+          <div class="text-4xl mb-3">⏰</div>
+          <h3 class="text-2xl font-black text-black mb-2" data-translate="scheduled_voting">Scheduled Voting</h3>
+          <p class="text-black opacity-80 text-lg" data-translate="time_controlled">Time-controlled Elections</p>
+        </div>
+      </div>
+
+      
+      
+      <!-- Footer Info -->
+      <div class="mt-12 text-white opacity-70">
+        <p class="text-sm" data-translate="powered_by">Powered by Advanced Face Recognition & Blockchain Technology</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal" class="fixed inset-0 hidden bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div class="glass w-full max-w-md mx-4 p-8 relative">
+      <!-- Close Button -->
+      <button onclick="closeAdminLoginModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl font-bold transition">&times;</button>
+      
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mb-4">
+          <span class="text-2xl">👨‍💼</span>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-2" data-translate="admin_login">Admin Login</h2>
+        <p class="text-white opacity-80 text-sm">Access the admin dashboard</p>
+      </div>
+
+      <!-- Form -->
+      <form id="adminLoginForm" class="space-y-8">
+        <div>
+          <label class="block mb-3 font-bold text-white text-sm tracking-wide" data-translate="username">Username</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span class="text-white opacity-60">👤</span>
+            </div>
+            <input type="text" id="adminUsername" data-translate-placeholder="username" placeholder="Enter username" required 
+                   class="w-full pl-12 pr-4 py-4 rounded-xl bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-70 border-2 border-white border-opacity-20 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 backdrop-blur-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block mb-3 font-bold text-white text-sm tracking-wide" data-translate="password">Password</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span class="text-white opacity-60">🔒</span>
+            </div>
+            <input type="password" id="adminPassword" data-translate-placeholder="password" placeholder="Enter password" required 
+                   class="w-full pl-12 pr-4 py-4 rounded-xl bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-70 border-2 border-white border-opacity-20 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 backdrop-blur-sm" />
+          </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div id="adminErrorMessage" class="hidden bg-red-500 bg-opacity-20 border border-red-400 text-red-200 px-4 py-3 rounded-lg text-sm text-center backdrop-blur-sm"></div>
+        
+        <!-- Login Button -->
+        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-400 focus:ring-opacity-50 relative overflow-hidden">
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            <span class="text-lg">✨</span>
+            <span data-translate="login" class="text-lg tracking-wide">Login</span>
+          </span>
+          <div class="absolute inset-0 bg-gradient-to-r from-white to-transparent opacity-0 hover:opacity-10 transition-opacity duration-300"></div>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Multiple Faces Warning Modal -->
+  <div id="multipleFacesModal" class="fixed inset-0 hidden bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div class="glass w-full max-w-md mx-4 p-8 text-center">
+      <div class="text-6xl mb-4">⚠️</div>
+      <h2 class="mb-4 text-red-400 text-xl font-bold">Multiple Faces Detected!</h2>
+      <p class="mb-6 text-white opacity-90">Only one person should be present during voting. Please ensure you are alone and try again.</p>
+      <button onclick="closeMultipleFacesModal()" class="glow-button bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 rounded-lg text-white font-bold transition hover:from-blue-600 hover:to-purple-700">Understood</button>
+    </div>
+  </div>
+
+  <!-- Vote Success Modal -->
+  <div id="voteSuccessModal" class="fixed inset-0 hidden bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div class="glass w-full max-w-md mx-4 p-8 text-center">
+      <div class="text-6xl mb-4">✅</div>
+      <h2 class="mb-4 text-green-400 text-xl font-bold">Vote Submitted Successfully!</h2>
+      <p class="mb-6 text-white opacity-90">Your vote has been recorded. A confirmation email has been sent to your registered email address.</p>
+      <button onclick="closeVoteSuccessModal()" class="glow-button bg-gradient-to-r from-green-500 to-teal-600 px-6 py-3 rounded-lg text-white font-bold transition hover:from-green-600 hover:to-teal-700">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    // Open Admin Login Modal
+    function openAdminLoginModal() {
+      document.getElementById('adminLoginModal').classList.remove('hidden');
+    }
+
+    // Close Admin Login Modal
+    function closeAdminLoginModal() {
+      document.getElementById('adminLoginModal').classList.add('hidden');
+    }
+
+    // Show Multiple Faces Warning
+    function showMultipleFacesWarning() {
+      document.getElementById('multipleFacesModal').classList.remove('hidden');
+    }
+
+    // Close Multiple Faces Modal
+    function closeMultipleFacesModal() {
+      document.getElementById('multipleFacesModal').classList.add('hidden');
+    }
+
+    // Show Vote Success Modal
+    function showVoteSuccessModal() {
+      document.getElementById('voteSuccessModal').classList.remove('hidden');
+    }
+
+    // Close Vote Success Modal
+    function closeVoteSuccessModal() {
+      document.getElementById('voteSuccessModal').classList.add('hidden');
+    }
+
+    // Handle Admin Login
+    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('adminUsername').value.trim();
+      const password = document.getElementById('adminPassword').value.trim();
+      const errorElement = document.getElementById('adminErrorMessage');
+      
+      // Hide previous error
+      errorElement.classList.add('hidden');
+      
+      try {
+        const response = await fetch('/admin-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          window.location.href = '/admin';
+        } else {
+          errorElement.innerText = result.message || 'Invalid credentials.';
+          errorElement.classList.remove('hidden');
+        }
+      } catch (error) {
+        errorElement.innerText = 'Connection error. Please try again.';
+        errorElement.classList.remove('hidden');
+      }
+    });
+
+
+  </script>
+</body>
+</html>
