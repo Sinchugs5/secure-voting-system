@@ -479,7 +479,7 @@ def login():
                                 },
                                 timeout=10
                             )
-                            print(f"SendGrid Response: {response.status_code}")
+                            pass
                         except Exception as e:
                             print(f"SendGrid error: {e}")
                 
@@ -488,9 +488,36 @@ def login():
                 email_thread.daemon = True
                 email_thread.start()
                 
-                # Wait 20 seconds then show OTP
-                time.sleep(20)
-                return jsonify({'success': True, 'message': f'Email sent to {email}. If not received, your OTP is: {otp}'})
+                # Check if email was sent successfully
+                sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+                if sendgrid_key and sendgrid_key.startswith('SG.'):
+                    try:
+                        import requests
+                        response = requests.post(
+                            'https://api.sendgrid.com/v3/mail/send',
+                            headers={
+                                'Authorization': f'Bearer {sendgrid_key}',
+                                'Content-Type': 'application/json'
+                            },
+                            json={
+                                'personalizations': [{
+                                    'to': [{'email': email}],
+                                    'subject': 'Your OTP Code - Voting System'
+                                }],
+                                'from': {'email': 'sitaraab9@gmail.com', 'name': 'Voting System'},
+                                'content': [{
+                                    'type': 'text/plain',
+                                    'value': f'Hello {name},\n\nYour OTP for voting system login is: {otp}\n\nThis code is valid for 5 minutes.\n\nRegards,\nVoting System'
+                                }]
+                            },
+                            timeout=5
+                        )
+                        if response.status_code == 202:
+                            return jsonify({'success': True, 'message': f'OTP sent to {email}. Please check your inbox and spam folder.'})
+                    except:
+                        pass
+                
+                return jsonify({'success': False, 'message': f'OTP sending failed. Your OTP is: {otp}'})
         else:
             field_name = 'mobile number' if login_type == 'mobile' else 'email'
             return jsonify({'success': False, 'message': f'Invalid {field_name} or password.'})
